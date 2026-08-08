@@ -1,0 +1,164 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body { background: #f0f4f7; min-height: 100vh; }
+
+.topbar {
+  background: #146c94;
+  color: white;
+  padding: 14px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-logo { width: 42px; height: 42px; object-fit: contain; background: white; border-radius: 50%; padding: 3px; }
+.topbar-left h2 { font-size: 18px; }
+.topbar-left p { font-size: 11px; opacity: 0.85; }
+.topbar-right { display: flex; align-items: center; gap: 14px; font-size: 14px; }
+#logoutBtn { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 7px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+#logoutBtn:hover { background: rgba(255,255,255,0.3); }
+
+.layout { display: flex; min-height: calc(100vh - 70px); }
+
+.sidebar {
+  width: 240px;
+  background: #0f2d3d;
+  padding: 20px 0;
+  flex-shrink: 0;
+  position: sticky;
+  top: 70px;
+  align-self: flex-start;
+  height: calc(100vh - 70px);
+}
+.menu-item {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #b7c8d1;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all 0.2s;
+}
+.menu-item:hover { background: rgba(255,255,255,0.06); color: white; }
+.menu-item.active { background: rgba(255,255,255,0.1); color: white; border-left: 3px solid #4fc3f7; font-weight: 600; }
+.menu-icon { font-size: 18px; }
+
+.content-area { flex: 1; padding: 30px 20px; max-width: 900px; }
+.view { width: 100%; }
+
+.card { background: white; border-radius: 12px; padding: 25px 28px; margin-bottom: 24px; box-shadow: 0 3px 12px rgba(0,0,0,0.08); }
+.card h3 { color: #146c94; font-size: 19px; margin-bottom: 4px; }
+.card-subtitle { color: #888; font-size: 13px; margin-bottom: 20px; }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.input-group label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+.input-group input, .input-group select { width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; background: white; }
+.input-group input:focus, .input-group select:focus { border-color: #146c94; }
+
+.btn-hitung { margin-top: 22px; width: 100%; padding: 13px; background: #146c94; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.btn-hitung:hover { background: #0f4c5c; }
+
+.hasil-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.hasil-box { text-align: center; padding: 18px 10px; border-radius: 10px; border: 2px solid #ddd; background: #fafafa; }
+.hasil-label { font-size: 13px; font-weight: 700; color: #666; letter-spacing: 0.5px; }
+.hasil-angka { font-size: 26px; font-weight: 700; color: #146c94; margin: 8px 0 4px; }
+.hasil-standar { font-size: 11px; color: #999; }
+.hasil-box.ideal { border-color: #2e7d32; background: #e8f5e9; }
+.hasil-box.ideal .hasil-angka { color: #2e7d32; }
+.hasil-box.tidak-ideal { border-color: #d32f2f; background: #ffebee; }
+.hasil-box.tidak-ideal .hasil-angka { color: #d32f2f; }
+
+/* ===== BERANDA ===== */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-top: 10px; }
+.stat-box { text-align: center; padding: 16px; border-radius: 10px; background: #f0f7fb; border: 1.5px solid #cfe3ec; }
+.stat-box .stat-angka { font-size: 24px; font-weight: 700; color: #146c94; }
+.stat-box .stat-label { font-size: 12px; color: #666; margin-top: 4px; }
+
+.step-card {
+  display: flex; align-items: center; gap: 16px;
+  padding: 18px 20px; border-radius: 10px; border: 1.5px solid #ddd;
+  margin-bottom: 14px; cursor: pointer; transition: all 0.15s;
+}
+.step-card:hover { border-color: #146c94; background: #f0f7fb; transform: translateX(4px); }
+.step-number {
+  width: 40px; height: 40px; border-radius: 50%; background: #146c94; color: white;
+  display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; flex-shrink: 0;
+}
+.step-info h4 { color: #146c94; font-size: 15px; margin-bottom: 2px; }
+.step-info p { font-size: 12px; color: #777; }
+
+.next-step-hint {
+  background: #146c94; color: white; padding: 16px 20px; border-radius: 10px;
+  text-align: center; cursor: pointer; font-size: 14px; margin-bottom: 24px; transition: background 0.15s;
+}
+.next-step-hint:hover { background: #0f4c5c; }
+.next-step-hint strong { text-decoration: underline; }
+
+/* ===== TABEL & CETAK ===== */
+.print-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.btn-cetak { background: #0f2d3d; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+.btn-cetak:hover { background: #146c94; }
+
+.table-wrap { overflow-x: auto; }
+.hasil-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 500px; }
+.hasil-table th, .hasil-table td { border: 1px solid #ddd; padding: 8px 10px; text-align: center; }
+.hasil-table th { background: #146c94; color: white; }
+.hasil-table td.status-baik { color: #2e7d32; font-weight: 700; }
+.hasil-table td.status-belum-baik { color: #d32f2f; font-weight: 700; }
+.hasil-table .btn-diagnosa { background: #146c94; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; }
+.hasil-table .btn-diagnosa:hover { background: #0f4c5c; }
+.hasil-table .btn-hapus { background: #d32f2f; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; margin-left: 4px; }
+
+.trend-subtitle { color: #146c94; font-size: 15px; margin: 18px 0 10px; }
+.trend-kesimpulan {
+  margin-top: 10px; font-size: 13px; color: #333; background: #f0f7fb;
+  border-left: 4px solid #146c94; padding: 10px 14px; border-radius: 4px;
+}
+
+/* ===== MORTALITAS: INPUT MULTI TAHUN ===== */
+.mortalitas-input-list { display: flex; flex-direction: column; gap: 10px; }
+.mortalitas-row-input { display: grid; grid-template-columns: 110px 1fr 1fr 1fr; gap: 10px; }
+.mortalitas-row-input input { padding: 9px 11px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 13px; outline: none; }
+.mortalitas-row-input input:focus { border-color: #146c94; }
+
+/* ===== MORBIDITAS: DAFTAR INPUT PENYAKIT MANUAL ===== */
+.morbiditas-input-list { display: flex; flex-direction: column; gap: 10px; }
+.morbiditas-row { display: grid; grid-template-columns: 30px 1fr 140px; gap: 10px; align-items: center; }
+.morbiditas-row .row-number { font-size: 13px; color: #999; text-align: center; }
+.morbiditas-row input { padding: 9px 11px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 13px; outline: none; }
+.morbiditas-row input:focus { border-color: #146c94; }
+
+.bar-chart-row { display: grid; grid-template-columns: 160px 1fr 60px; align-items: center; gap: 12px; margin-bottom: 10px; }
+.bar-chart-label { font-size: 13px; color: #333; font-weight: 600; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-chart-track { background: #eee; border-radius: 6px; height: 24px; overflow: hidden; }
+.bar-chart-fill { height: 100%; background: linear-gradient(90deg, #146c94, #4fc3f7); border-radius: 6px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; color: white; font-size: 11px; font-weight: 600; }
+.bar-chart-jumlah { font-size: 13px; color: #666; text-align: left; }
+
+@media (max-width: 800px) {
+  .layout { flex-direction: column; }
+  .sidebar { width: 100%; position: static; height: auto; display: flex; padding: 0; overflow-x: auto; }
+  .menu-item { border-left: none; border-bottom: 3px solid transparent; white-space: nowrap; }
+  .menu-item.active { border-left: none; border-bottom: 3px solid #4fc3f7; }
+}
+
+@media (max-width: 640px) {
+  .form-grid, .hasil-grid, .stat-grid { grid-template-columns: 1fr; }
+  .morbiditas-row { grid-template-columns: 24px 1fr 90px; }
+  .bar-chart-row { grid-template-columns: 90px 1fr 50px; }
+  .mortalitas-row-input { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Sistem Informasi Rawat Inap</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <style>
+    #areaCetak { display: none; }
+    @media print {
+      body * { visibility: hidden; }
+      #areaCetak, #areaCetak * { visibility: visible; }
+      #areaCetak {
+        display: block;
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%;
+        padding: 20px;
+        font-family: 'Segoe UI', Arial, sans-serif;
+      }
+      #areaCetak h2 { color: #146c94; font-size: 18px; margin-bottom: 12px; }
+      #areaCetak table { width: 100%; border-collapse: collapse; font-size: 12px; }
+      #areaCetak th, #areaCetak td { border: 1px solid #999; padding: 6px 8px; text-align: center; }
+      #areaCetak th { background: #146c94 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      #areaCetak .catatan-pdf { font-size: 11px; color: #666; margin-top: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <img src="logo.png" alt="Logo" class="topbar-logo">
+      <div>
+        <h2>Sistem Informasi Rawat Inap</h2>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span id="namaUser">Petugas</span>
+      <button id="logoutBtn">Keluar</button>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <aside class="sidebar">
+      <button class="menu-item active" data-view="viewBeranda">
+        <span class="menu-icon">🏠</span><span>Beranda</span>
+      </button>
+      <button class="menu-item" data-view="viewPasien">
+        <span class="menu-icon">🧾</span><span>Data Pasien</span>
+      </button>
+      <button class="menu-item" data-view="viewSensus">
+        <span class="menu-icon">📋</span><span>Sensus Otomatis</span>
+      </button>
+      <button class="menu-item" data-view="viewIndikator">
+        <span class="menu-icon">🛏️</span><span>Indikator Rawat Inap</span>
+      </button>
+      <button class="menu-item" data-view="viewMortalitas">
+        <span class="menu-icon">⚰️</span><span>Mortalitas</span>
+      </button>
+      <button class="menu-item" data-view="viewMorbiditas">
+        <span class="menu-icon">📊</span><span>Morbiditas & Laporan</span>
+      </button>
+    </aside>
+
+    <main class="content-area">
+
+      <!-- ===== BERANDA ===== -->
+      <div id="viewBeranda" class="view">
+        <section class="card">
+          <h3>Selamat Datang di Sistem Informasi Rawat Inap</h3>
+          <p class="card-subtitle">Ikuti langkah-langkah berikut secara berurutan untuk mengolah data rawat inap dari awal sampai laporan akhir.</p>
+
+          <div class="stat-grid">
+            <div class="stat-box">
+              <div class="stat-angka" id="statTotalPasien">0</div>
+              <div class="stat-label">Total Pasien Terdaftar</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-angka" id="statPasienAktif">0</div>
+              <div class="stat-label">Pasien Sedang Dirawat</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-angka" id="statDiagnosaLengkap">0</div>
+              <div class="stat-label">Pasien Sudah Diagnosa</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-angka" id="statDiagnosaBelum">0</div>
+              <div class="stat-label">Pasien Belum Diagnosa</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-angka" id="statTTKosong">-</div>
+              <div class="stat-label">Tempat Tidur Kosong Saat Ini</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Pengaturan Tempat Tidur Rumah Sakit</h3>
+          <p class="card-subtitle">Isi kapasitas total tempat tidur RS. Dipakai sebagai kapasitas tetap di Sensus Otomatis dan Indikator Rawat Inap.</p>
+          <div class="form-grid">
+            <div class="input-group">
+              <label for="pengaturanTT">Jumlah Tempat Tidur (Kapasitas Total RS)</label>
+              <input type="number" id="pengaturanTT" min="1" placeholder="contoh: 100">
+            </div>
+          </div>
+          <button type="button" id="btnSimpanPengaturanTT" class="btn-hitung">Simpan Pengaturan</button>
+          <p id="infoTTKosongBeranda" style="font-size:13px; color:#146c94; margin-top:12px; font-weight:600;"></p>
+        </section>
+
+       <section class="card">
+          <h3>Backup &amp; Pemulihan Data</h3>
+          <p class="card-subtitle">
+            Data website ini tersimpan hanya di browser/komputer ini. Download backup secara rutin supaya data
+            tidak hilang, dan bisa dipindahkan ke komputer lain.
+          </p>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button type="button" id="btnDownloadBackup" style="background:#146c94; color:white; border:none; padding:12px 20px; border-radius:8px; font-size:14px; cursor:pointer;">⬇️ Download Backup</button>
+            <label for="inputUploadBackup" style="background:#0f2d3d; color:white; border:none; padding:12px 20px; border-radius:8px; font-size:14px; cursor:pointer; display:inline-block;">
+              ⬆️ Upload Backup
+              <input type="file" id="inputUploadBackup" accept=".json" style="display:none;">
+            </label>
+          </div>
+          <p id="infoBackupTerakhir" style="font-size:12px; color:#888; margin-top:10px;"></p>
+        </section>
+
+        <section class="card">
+          <h3>Pengaturan Data</h3>
+          <p class="card-subtitle">Hapus seluruh data pasien yang tersimpan di komputer ini (tidak bisa dibatalkan, gunakan hati-hati)</p>
+          <button type="button" id="btnResetSemua" style="background:#d32f2f; color:white; border:none; padding:12px 20px; border-radius:8px; font-size:14px; cursor:pointer;">🗑️ Reset Semua Data Pasien</button>
+        </section>
+
+        <section class="card">
+          <h3>Panduan Langkah</h3>
+          <div class="step-card" onclick="pindahMenu('viewPasien')">
+            <div class="step-number">1</div>
+            <div class="step-info">
+              <h4>Data Pasien</h4>
+              <p>Input pasien masuk, proses pulang, hingga diagnosa ICD-10 &amp; tindakan ICD-9-CM. Langkah paling awal — semua perhitungan berikutnya berasal dari data ini.</p>
+            </div>
+          </div>
+          <div class="step-card" onclick="pindahMenu('viewSensus')">
+            <div class="step-number">2</div>
+            <div class="step-info">
+              <h4>Sensus Otomatis</h4>
+              <p>Pilih periode, sistem otomatis menghitung sensus harian dari data pasien di Langkah 1 (jumlah tempat tidur sudah otomatis dari Pengaturan di atas).</p>
+            </div>
+          </div>
+          <div class="step-card" onclick="pindahMenu('viewIndikator')">
+            <div class="step-number">3</div>
+            <div class="step-info">
+              <h4>Indikator Rawat Inap</h4>
+              <p>BOR, AvLOS, TOI, BTO, dan Grafik Barber-Johnson — otomatis terisi setelah Langkah 2, atau bisa diisi manual di sini.</p>
+            </div>
+          </div>
+          <div class="step-card" onclick="pindahMenu('viewMortalitas')">
+            <div class="step-number">4</div>
+            <div class="step-info">
+              <h4>Mortalitas</h4>
+              <p>GDR dan NDR per tahun, lengkap dengan grafik dan analisis trend. Semua tahun yang ada datanya di Data Pasien otomatis terisi.</p>
+            </div>
+          </div>
+          <div class="step-card" onclick="pindahMenu('viewMorbiditas')">
+            <div class="step-number">5</div>
+            <div class="step-info">
+              <h4>Morbiditas &amp; Laporan</h4>
+              <p>Laporan 10 Besar Penyakit dan Rekapitulasi pasien, dihitung otomatis dari data diagnosa di Langkah 1. Siap dicetak.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ===== 1. DATA PASIEN ===== -->
+      <div id="viewPasien" class="view" style="display:none;">
+
+        <section class="card">
+          <h3>Langkah 1a: Pasien Masuk Ruang Rawat Inap</h3>
+          <p class="card-subtitle">Isi saat pasien baru masuk rawat inap (belum perlu tahu kapan akan pulang)</p>
+          <form id="pasienMasukForm">
+            <div class="form-grid">
+              <div class="input-group">
+                <label for="pmMrn">No. Rekam Medis (No. RM)</label>
+                <input type="text" id="pmMrn" placeholder="contoh: No RM00001" required>
+              </div>
+              <div class="input-group">
+                <label for="pmNama">Nama Pasien</label>
+                <input type="text" id="pmNama" placeholder="Nama lengkap pasien" required>
+              </div>
+              <div class="input-group">
+                <label for="pmTglLahir">Tanggal Lahir</label>
+                <input type="date" id="pmTglLahir" required>
+              </div>
+              <div class="input-group">
+                <label for="pmUmur">Umur (otomatis dari Tanggal Lahir)</label>
+                <input type="number" id="pmUmur" placeholder="terisi otomatis" min="0" max="120" readonly required>
+              </div>
+              <div class="input-group">
+                <label for="pmJk">Jenis Kelamin</label>
+                <select id="pmJk" required>
+                  <option value="">Pilih</option>
+                  <option value="Laki-laki">Laki-laki</option>
+                  <option value="Perempuan">Perempuan</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label for="pmPoli">Kelas Perawatan</label>
+                <input type="text" id="pmPoli" placeholder="contoh: III A, VIP A, Kelas I" required>
+              </div>
+              <div class="input-group">
+                <label for="pmRuangan">Ruangan Perawatan</label>
+                <input type="text" id="pmRuangan" placeholder="contoh: Ruang Melati, Ruang Anggrek Lt. 2" required>
+              </div>
+              <div class="input-group">
+                <label for="pmDepartemen">Jenis Pelayanan / Departemen</label>
+                <select id="pmDepartemen" required>
+                  <option value="">Pilih</option>
+                  <option value="Penyakit Dalam">Penyakit Dalam</option>
+                  <option value="Bedah">Bedah</option>
+                  <option value="Kesehatan Anak">Kesehatan Anak</option>
+                  <option value="Obstetri">Obstetri</option>
+                  <option value="Ginekologi">Ginekologi</option>
+                  <option value="Bedah Saraf">Bedah Saraf</option>
+                  <option value="Saraf">Saraf</option>
+                  <option value="Jiwa">Jiwa</option>
+                  <option value="THT">THT</option>
+                  <option value="Mata">Mata</option>
+                  <option value="Kulit dan Kelamin">Kulit dan Kelamin</option>
+                  <option value="Gigi dan Mulut">Gigi dan Mulut</option>
+                  <option value="Kardiologi">Kardiologi</option>
+                  <option value="Radioterapi/Kedokteran Nuklir">Radioterapi/Kedokteran Nuklir</option>
+                  <option value="Bedah Orthopedi">Bedah Orthopedi</option>
+                  <option value="Paru-paru">Paru-paru</option>
+                  <option value="Kusta">Kusta</option>
+                  <option value="Umum">Umum</option>
+                  <option value="Rehabilitasi Medik">Rehabilitasi Medik</option>
+                  <option value="Isolasi">Isolasi</option>
+                  <option value="Luka Bakar">Luka Bakar</option>
+                  <option value="ICU">ICU</option>
+                  <option value="ICCU">ICCU</option>
+                  <option value="Perinatologi">Perinatologi</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label for="pmCaraMasuk">Cara Pasien Masuk</label>
+                <select id="pmCaraMasuk" required>
+                  <option value="">Pilih</option>
+                  <option value="URD">URD (Unit Rawat Darurat)</option>
+                  <option value="URJ">URJ (Unit Rawat Jalan)</option>
+                  <option value="TPPRI">TPPRI (Pendaftaran Rawat Inap)</option>
+                  <option value="Langsung">Langsung Rawat Inap</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label for="pmTglMasuk">Tanggal Masuk</label>
+                <input type="date" id="pmTglMasuk" required>
+              </div>
+              <div class="input-group" style="grid-column: 1 / -1;">
+                <label for="pmAlamat">Alamat</label>
+                <input type="text" id="pmAlamat" placeholder="Alamat lengkap pasien" required>
+              </div>
+              <div class="input-group">
+                <label for="pmDpjp">DPJP (Dokter Penanggung Jawab)</label>
+                <input type="text" id="pmDpjp" placeholder="Nama dokter" required>
+              </div>
+            </div>
+           <button type="submit" class="btn-hitung">Simpan Pasien Masuk</button>
+            <button type="button" id="btnBatalEditPasien" class="btn-cetak" style="display:none; margin-top:10px; width:100%; padding:12px;" onclick="batalEditPasien()">Batal Edit</button>
+          </form>
+        </section>
+
+       <section class="card">
+          <div class="print-header">
+            <h3>Pasien Sedang Dirawat</h3>
+            <button type="button" id="btnCetakPasienAktif" class="btn-cetak">🖨️ Cetak / PDF</button>
+          </div>
+          <p class="card-subtitle">Klik "Proses Pulang" saat pasien akan keluar/pulang, atau "Pindah Ruangan" kalau pasien pindah ruangan/kelas/departemen selama masih dirawat (pasien pindahan intern RS)</p>
+          <div class="input-group" style="margin-bottom:14px;">
+            <input type="text" id="cariPasienAktif" placeholder="🔍 Cari nama atau No. RM..." oninput="renderTabelPasienAktif()">
+          </div>
+          <div class="table-wrap">
+            <table class="hasil-table" id="tabelPasienAktif"></table>
+          </div>
+        </section>
+
+       <section class="card" id="pindahRuanganFormSection" style="display:none;">
+          <h3>Pindah Ruangan / Kelas / Departemen Intern RS</h3>
+          <p class="card-subtitle" id="pindahRuanganPasienInfo"></p>
+          <form id="pindahRuanganForm">
+            <div class="form-grid">
+              <div class="input-group">
+                <label for="prTglPindah">Tanggal Pindah</label>
+                <input type="date" id="prTglPindah" required>
+              </div>
+              <div class="input-group">
+                <label for="prRuanganBaru">Ruangan Baru</label>
+                <input type="text" id="prRuanganBaru" placeholder="contoh: Teratai 3" required>
+              </div>
+              <div class="input-group">
+                <label for="prKelasBaru">Kelas Perawatan Baru</label>
+                <input type="text" id="prKelasBaru" placeholder="contoh: III A, VIP A, Kelas I" required>
+              </div>
+              <div class="input-group">
+                <label for="prDepartemenBaru">Departemen Baru (kosongkan jika tetap sama)</label>
+                <select id="prDepartemenBaru">
+                  <option value="">— Tetap departemen sekarang —</option>
+                  <option value="Penyakit Dalam">Penyakit Dalam</option>
+                  <option value="Bedah">Bedah</option>
+                  <option value="Kesehatan Anak">Kesehatan Anak</option>
+                  <option value="Obstetri">Obstetri</option>
+                  <option value="Ginekologi">Ginekologi</option>
+                  <option value="Bedah Saraf">Bedah Saraf</option>
+                  <option value="Saraf">Saraf</option>
+                  <option value="Jiwa">Jiwa</option>
+                  <option value="THT">THT</option>
+                  <option value="Mata">Mata</option>
+                  <option value="Kulit dan Kelamin">Kulit dan Kelamin</option>
+                  <option value="Gigi dan Mulut">Gigi dan Mulut</option>
+                  <option value="Kardiologi">Kardiologi</option>
+                  <option value="Radioterapi/Kedokteran Nuklir">Radioterapi/Kedokteran Nuklir</option>
+                  <option value="Bedah Orthopedi">Bedah Orthopedi</option>
+                  <option value="Paru-paru">Paru-paru</option>
+                  <option value="Kusta">Kusta</option>
+                  <option value="Umum">Umum</option>
+                  <option value="Rehabilitasi Medik">Rehabilitasi Medik</option>
+                  <option value="Isolasi">Isolasi</option>
+                  <option value="Luka Bakar">Luka Bakar</option>
+                  <option value="ICU">ICU</option>
+                  <option value="ICCU">ICCU</option>
+                  <option value="Perinatologi">Perinatologi</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn-hitung">Simpan Perpindahan</button>
+          </form>
+          <div class="table-wrap" style="margin-top:16px;">
+            <table class="hasil-table" id="tabelRiwayatPindah"></table>
+          </div>
+        </section>
+
+       <section class="card" id="pulangFormSection" style="display:none;">
+          <h3>Langkah 1b: Proses Pasien Pulang / Keluar Ruangan</h3>
+          <p class="card-subtitle" id="pulangPasienInfo"></p>
+          <form id="pulangForm">
+            <div class="form-grid">
+              <div class="input-group">
+                <label for="plTglKeluar">Tanggal Keluar</label>
+                <input type="date" id="plTglKeluar" required>
+              </div>
+              <div class="input-group">
+                <label for="plJamKeluar">Jam Keluar</label>
+                <input type="time" id="plJamKeluar" required>
+              </div>
+              <div class="input-group">
+                <label for="plCaraKeluar">Cara Pasien Keluar</label>
+                <select id="plCaraKeluar" required>
+                  <option value="">Pilih</option>
+                  <option value="pulang">Pulang</option>
+                  <option value="rujuk">Dirujuk ke RS Lebih Tinggi</option>
+                  <option value="pindah_rs">Pindah ke RS Lain</option>
+                  <option value="pulang_paksa">Pulang Paksa</option>
+                  <option value="lari">Lari / Melarikan Diri</option>
+                  <option value="mati_kurang48">Meninggal &lt; 48 Jam Dirawat</option>
+                  <option value="mati_lebih48">Meninggal &ge; 48 Jam Dirawat</option>
+                </select>
+              </div>
+              <div class="input-group" id="grupKeadaanPulang">
+                <label for="plKeadaanPulang">Keadaan Saat Pulang</label>
+                <select id="plKeadaanPulang" required>
+                  <option value="">Pilih</option>
+                  <option value="Sembuh">Sembuh</option>
+                  <option value="Belum Sembuh">Belum Sembuh</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label for="plCaraBayar">Cara Pembayaran</label>
+                <select id="plCaraBayar" required>
+                  <option value="">Pilih</option>
+                  <option value="Bayar Sendiri">Bayar Sendiri</option>
+                  <option value="JKN">JKN</option>
+                  <option value="Asuransi Lain">Asuransi Lain</option>
+                  <option value="JPKM">JPKM</option>
+                  <option value="SKTM">SKTM (Gratis)</option>
+                  <option value="SKM">SKM (Gratis)</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn-hitung">Simpan &amp; Pindahkan ke Data Pasien Pulang</button>
+          </form>
+        </section>
+
+        <section class="card">
+          <div class="print-header">
+            <h3>Data Pasien Sudah Pulang</h3>
+            <button type="button" id="btnCetakPasienPulang" class="btn-cetak">🖨️ Cetak / PDF</button>
+          </div>
+          <p class="card-subtitle">Klik "Diagnosa" untuk mengisi diagnosa ICD-10 dan tindakan ICD-9-CM pasien yang belum diisi</p>
+          <div class="form-grid" style="margin-bottom:14px;">
+            <div class="input-group">
+              <input type="text" id="cariPasienPulang" placeholder="🔍 Cari nama atau No. RM..." oninput="renderTabelPasien()">
+            </div>
+            <div class="input-group">
+              <select id="filterTahunPasienPulang" onchange="renderTabelPasien()">
+                <option value="">Semua Tahun</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="hasil-table" id="tabelPasien"></table>
+          </div>
+        </section>
+
+        <section class="card" id="diagnosaFormSection" style="display:none;">
+          <h3>Isi Diagnosa &amp; Tindakan Pasien</h3>
+          <p class="card-subtitle" id="diagnosaPasienInfo"></p>
+          <form id="diagnosaForm">
+            <div class="form-grid">
+              <div class="input-group">
+                <label for="dNamaPenyakit">Nama Diagnosa (ketik untuk melihat saran ICD-10)</label>
+                <input type="text" id="dNamaPenyakit" list="daftarIcd10" placeholder="contoh: Diare" required autocomplete="off">
+                <datalist id="daftarIcd10"></datalist>
+              </div>
+              <div class="input-group">
+                <label for="dKodeIcd">Kode ICD-10</label>
+                <input type="text" id="dKodeIcd" placeholder="terisi otomatis, bisa diubah" required>
+              </div>
+              <div class="input-group">
+                <label for="dNamaTindakan">Nama Tindakan/Prosedur (opsional)</label>
+                <input type="text" id="dNamaTindakan" list="daftarIcd9cm" placeholder="contoh: Appendektomi" autocomplete="off">
+                <datalist id="daftarIcd9cm"></datalist>
+              </div>
+              <div class="input-group">
+                <label for="dKodeIcd9">Kode ICD-9-CM (opsional)</label>
+                <input type="text" id="dKodeIcd9" placeholder="terisi otomatis, bisa diubah">
+              </div>
+            </div>
+            <button type="submit" class="btn-hitung">Simpan Diagnosa</button>
+            <button type="button" id="btnBatalEditDiagnosa" class="btn-cetak" style="display:none; margin-top:10px; width:100%; padding:12px;" onclick="batalEditDiagnosa()">Batal Edit</button>
+          </form>
+        </section>
+
+        <section class="card" id="daftarDiagnosaPasienSection" style="display:none;">
+          <h3>Diagnosa &amp; Tindakan Pasien Ini</h3>
+          <div class="table-wrap">
+            <table class="hasil-table" id="tabelDaftarDiagnosaPasien"></table>
+          </div>
+        </section>
+
+        <div class="next-step-hint" onclick="pindahMenu('viewSensus')">
+          Sudah selesai input data pasien? Lanjut ke <strong>Langkah 2: Sensus Otomatis →</strong>
+        </div>
+
+      </div>
+
+      <!-- ===== 2. SENSUS OTOMATIS ===== -->
+      <div id="viewSensus" class="view" style="display:none;">
+
+        <section class="card">
+          <h3>Langkah 2: Sensus &amp; Kalkulasi Otomatis</h3>
+          <p class="card-subtitle">
+            Sistem menghitung sensus harian secara otomatis dari data pasien di Langkah 1, lalu mengisi otomatis
+            ke Indikator Rawat Inap (Langkah 3) dan Mortalitas (Langkah 4).
+          </p>
+          <div class="form-grid">
+            <div class="input-group">
+              <label for="sensusTempatTidur">Jumlah Tempat Tidur (Kapasitas Periode Ini)</label>
+              <input type="number" id="sensusTempatTidur" placeholder="otomatis dari Pengaturan, bisa diubah untuk periode lama" min="0" required>
+            </div>
+            <div class="input-group">
+              <label for="sensusAwal">Periode Awal</label>
+              <input type="date" id="sensusAwal" required>
+            </div>
+            <div class="input-group">
+              <label for="sensusAkhir">Periode Akhir</label>
+              <input type="date" id="sensusAkhir" required>
+            </div>
+          </div>
+          <p id="infoTTKosongSensus" style="font-size:13px; color:#146c94; font-weight:600; margin-top:-6px; margin-bottom:14px;"></p>
+          <button type="button" id="btnRekapSensus" class="btn-hitung">Hitung Sensus Otomatis &amp; Lanjut ke Langkah 3</button>
+          <div id="ringkasanSensus" style="margin-top:18px;"></div>
+        </section>
+
+       <section class="card" id="sensusHarianSection" style="display:none;">
+          <div class="print-header">
+            <h3>Rincian Sensus Harian (Format RP1)</h3>
+            <button type="button" id="btnCetakSensusHarian" class="btn-cetak">🖨️ Cetak / PDF</button>
+          </div>
+          <p class="card-subtitle">Dihitung otomatis dari overlap tanggal masuk-keluar tiap pasien, termasuk rincian sisa per kelas perawatan</p>
+          <div class="table-wrap">
+            <table class="hasil-table" id="tabelSensusHarian"></table>
+          </div>
+        </section>
+
+        <section class="card" id="rekapBulananSection" style="display:none;">
+          <div class="print-header">
+            <h3>Rekap per Bulan (Data Triwulan)</h3>
+            <button type="button" id="btnCetakRekapBulanan" class="btn-cetak">🖨️ Cetak / PDF</button>
+          </div>
+          <p class="card-subtitle">Ringkasan per bulan dari periode yang dipilih, format seperti tabel Data Triwulan pada RP1</p>
+          <div class="table-wrap">
+            <table class="hasil-table" id="tabelRekapBulanan"></table>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Langkah 2b: Rekap per Departemen (Format RL1)</h3>
+          <p class="card-subtitle">Menghitung indikator rawat inap terpisah untuk setiap jenis pelayanan/departemen, pada periode yang sama seperti di atas (isi Periode Awal &amp; Akhir dulu)</p>
+          <button type="button" id="btnAturTT" class="btn-cetak" style="margin-bottom:14px;">⚙️ Atur Tempat Tidur per Departemen</button>
+          <div id="formTTDepartemen" style="display:none; margin-bottom:18px;"></div>
+          <button type="button" id="btnHitungRL1" class="btn-hitung">Hitung Rekap Semua Departemen</button>
+        </section>
+
+        <section class="card" id="rl1Section" style="display:none;">
+          <div class="print-header">
+            <h3>Laporan RL1: Data Kegiatan Rawat Inap per Departemen</h3>
+            <button type="button" id="btnCetakRL1" class="btn-cetak">🖨️ Cetak / PDF</button>
+          </div>
+          <p id="rl1PeriodeInfo" class="card-subtitle"></p>
+          <div class="table-wrap">
+            <table class="hasil-table" id="tabelRL1"></table>
+          </div>
+        </section>
+
+        <div class="next-step-hint" onclick="pindahMenu('viewIndikator')">
+          Sudah dihitung? Lanjut ke <strong>Langkah 3: Indikator Rawat Inap →</strong>
+        </div>
+
+      </div>
+
+      <!-- ===== 3. INDIKATOR RAWAT INAP ===== -->
+      <div id="viewIndikator" class="view" style="display:none;">
+
+        <section class="card">
+          <h3>Langkah 3: Input / Cek Data Rawat Inap</h3>
+          <p class="card-subtitle">Terisi otomatis dari Langkah 2, atau isi manual untuk menghitung periode/data lain.</p>
+          <form id="hitungForm">
+            <div class="form-grid">
+              <div class="input-group">
+  <label for="tempatTidur">Jumlah Tempat Tidur (Kapasitas Periode Ini)</label>
+  <input type="number" id="tempatTidur" placeholder="otomatis dari Pengaturan, bisa diubah untuk periode lama" min="0" required>
+</div>
+              <div class="input-group">
+                <label for="periode">Periode (jumlah hari)</label>
+                <input type="number" id="periode" placeholder="contoh: 30 (untuk 1 bulan)" min="1" required>
+              </div>
+              <div class="input-group">
+                <label for="periodeIndAwal">Periode Awal (opsional — biar jumlah hari otomatis akurat)</label>
+                <input type="date" id="periodeIndAwal">
+              </div>
+              <div class="input-group">
+                <label for="periodeIndAkhir">Periode Akhir (opsional — biar jumlah hari otomatis akurat)</label>
+                <input type="date" id="periodeIndAkhir">
+              </div>
+              <div class="input-group">
+                <label for="hariPerawatan">Jumlah Hari Perawatan (untuk BOR &amp; TOI)</label>
+                <input type="number" id="hariPerawatan" placeholder="total hari rawat semua pasien (sensus)" min="0" required>
+              </div>
+              <div class="input-group">
+                <label for="lamaDirawat">Jumlah Lama Dirawat (untuk AvLOS)</label>
+                <input type="number" id="lamaDirawat" placeholder="total (tgl keluar - tgl masuk) pasien yang sudah pulang" min="0" required>
+              </div>
+              <div class="input-group">
+                <label for="pasienKeluar">Jumlah Pasien Keluar (Hidup + Mati)</label>
+                <input type="number" id="pasienKeluar" placeholder="total pasien keluar periode ini" min="0" required>
+              </div>
+            </div>
+            <p id="infoPeriodeInd" style="font-size:12px; color:#888; margin-top:-6px; margin-bottom:12px;"></p>
+            <button type="submit" class="btn-hitung">Hitung Indikator</button>
+          </form>
+        </section>
+
+        <p id="infoHasilUsang" style="display:none; background:#fff3cd; color:#856404; border:1px solid #ffe08a; border-radius:8px; padding:10px 14px; font-size:13px; font-weight:600; margin:0 0 4px;">⚠️ Input di atas sudah berubah sejak terakhir dihitung. Klik "Hitung Indikator" lagi supaya hasil di bawah sesuai dengan angka yang sekarang diketik.</p>
+
+        <section class="card" id="hasilSection" style="display: none;">
+          <div class="print-header">
+            <h3>Hasil Perhitungan</h3>
+            <button type="button" id="btnCetakIndikator" class="btn-cetak">🖨️ Cetak / PDF</button>
+          </div>
+          <div class="hasil-grid">
+            <div class="hasil-box" id="borBox">
+              <p class="hasil-label">BOR</p>
+              <p class="hasil-angka" id="borHasil">-</p>
+              <p class="hasil-standar">Standar ideal: 60% - 85%</p>
+            </div>
+            <div class="hasil-box" id="avlosBox">
+              <p class="hasil-label">AvLOS</p>
+              <p class="hasil-angka" id="avlosHasil">-</p>
+              <p class="hasil-standar">Standar ideal: 6 - 9 hari</p>
+            </div>
+            <div class="hasil-box" id="toiBox">
+              <p class="hasil-label">TOI</p>
+              <p class="hasil-angka" id="toiHasil">-</p>
+              <p class="hasil-standar">Standar ideal: 1 - 3 hari</p>
+            </div>
+            <div class="hasil-box" id="btoBox">
+              <p class="hasil-label">BTO</p>
+              <p class="hasil-angka" id="btoHasil">-</p>
+              <p class="hasil-standar">Standar ideal: 40 - 50 kali/thn</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" id="grafikSection" style="display: none;">
+          <h3>Grafik Barber-Johnson</h3>
+          <div id="grafikContainer"></div>
+          <p id="infoTitikGrafik" style="font-size:13px; color:#333; margin-top:10px; font-weight:600;"></p>
+        </section>
+
+        <div class="next-step-hint" onclick="pindahMenu('viewMortalitas')">
+          Sudah dihitung? Lanjut ke <strong>Langkah 4: Mortalitas →</strong>
+        </div>
+
+      </div>
+
+      <!-- ===== 4. MORTALITAS ===== -->
+      <div id="viewMortalitas" class="view" style="display:none;">
+
+        <section class="card">
+          <h3>Langkah 4: Data Mortalitas per Tahun</h3>
+          <p class="card-subtitle">Setiap tahun yang datanya sudah ada di "Data Pasien" otomatis muncul dan terhitung di sini (minimal butuh 2 tahun untuk analisis trend).</p>
+          <p id="infoSumberMortalitas" style="font-size:13px; color:#146c94; font-weight:600; margin-bottom:14px;"></p>
+          <form id="mortalitasForm">
+            <div id="mortalitasInputList" class="mortalitas-input-list"></div>
+            <button type="submit" class="btn-hitung">Hitung GDR, NDR &amp; Trend</button>
+          </form>
+        </section>
+
+        <section class="card" id="mortalitasTabelSection" style="display:none;">
+          <div class="print-header">
+            <h3>Nilai GDR dan NDR per Tahun</h3>
+            <button type="button" id="btnCetakMortalitas" class="btn-cetak">🖨️ Cetak / PDF</button>
+          </div>
+          <div class="table-wrap">
+            <table class="hasil-table" id="mortalitasTabel"></table>
+          </div>
+        </section>
+
+        <section class="card" id="mortalitasGrafikGdrSection" style="display:none;">
+          <h3>Grafik Nilai Gross Death Rate (GDR)</h3>
+          <div id="grafikGdr"></div>
+        </section>
+
+        <section class="card" id="mortalitasGrafikNdrSection" style="display:none;">
+          <h3>Grafik Nilai Net Death Rate (NDR)</h3>
+          <div id="grafikNdr"></div>
+        </section>
+
+        <section class="card" id="mortalitasTrendSection" style="display:none;">
+          <h3>Analisis Trend GDR dan NDR (Metode Trend Linier)</h3>
+          <p class="card-subtitle">Y = a + bX, digunakan untuk memproyeksikan kecenderungan nilai pada periode berikutnya</p>
+          <h4 class="trend-subtitle">Trend GDR</h4>
+          <div class="table-wrap"><table class="hasil-table" id="trendGdrTabel"></table></div>
+          <p id="trendGdrKesimpulan" class="trend-kesimpulan"></p>
+          <h4 class="trend-subtitle">Trend NDR</h4>
+          <div class="table-wrap"><table class="hasil-table" id="trendNdrTabel"></table></div>
+          <p id="trendNdrKesimpulan" class="trend-kesimpulan"></p>
+        </section>
+
+        <div class="next-step-hint" onclick="pindahMenu('viewMorbiditas')">
+          Sudah dihitung? Lanjut ke <strong>Langkah 5: Morbiditas & Laporan →</strong>
+        </div>
+
+      </div>
+
+      <!-- ===== 5. MORBIDITAS & LAPORAN ===== -->
+      <div id="viewMorbiditas" class="view" style="display:none;">
+
+        <section class="card">
+          <div class="print-header">
+            <h3>Langkah 5: Laporan 10 Besar Penyakit (Otomatis)</h3>
+            <button type="button" id="btnCetakPenyakit" class="btn-cetak">🖨️ Cetak / PDF</button>
+          </div>
+          <p class="card-subtitle">Dihitung otomatis dari seluruh data diagnosa pasien di Langkah 1</p>
+          <div class="table-wrap">
+            <table class="hasil-table" id="tabelPenyakit"></table>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Pelaporan Rekapitulasi Pasien</h3>
+          <p class="card-subtitle">Pilih periode untuk menampilkan data pasien pulang beserta diagnosanya</p>
+          <div class="form-grid">
+            <div class="input-group">
+              <label for="rekapAwal">Periode Awal</label>
+              <input type="date" id="rekapAwal">
+            </div>
+            <div class="input-group">
+              <label for="rekapAkhir">Periode Akhir</label>
+              <input type="date" id="rekapAkhir">
+            </div>
+          </div>
+          <button type="button" id="btnTampilRekap" class="btn-hitung">Tampilkan Rekapitulasi</button>
+        </section>
+
+        <section class="card" id="rekapSection" style="display:none;">
+          <div class="print-header">
+            <h3>Laporan Rekapitulasi Pasien Pulang</h3>
+            <button type="button" id="btnCetakRekap" class="btn-cetak">🖨️ Cetak / PDF</button>
+          </div>
+          <p id="rekapPeriodeInfo" class="card-subtitle"></p>
+          <div class="table-wrap">
+            <table class="hasil-table" id="tabelRekap"></table>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Input Manual 10 Besar Penyakit (Opsional)</h3>
+          <p class="card-subtitle">Gunakan ini hanya jika data pasien di Langkah 1 belum lengkap, sebagai alternatif input cepat</p>
+          <form id="morbiditasForm">
+            <div id="morbiditasInputList" class="morbiditas-input-list"></div>
+            <button type="submit" class="btn-hitung">Hitung & Tampilkan (Manual)</button>
+          </form>
+        </section>
+
+        <section class="card" id="morbiditasHasilSection" style="display:none;">
+          <h3>Grafik 10 Besar Penyakit (Manual)</h3>
+          <div id="morbiditasChartContainer"></div>
+        </section>
+
+        <div class="next-step-hint" onclick="pindahMenu('viewBeranda')">
+          🎉 Selesai! Kembali ke <strong>Beranda</strong>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <footer style="text-align:center; font-size:11px; color:#999; padding:18px 10px 30px;">
+    Rumus indikator (BOR, AvLOS, TOI, BTO, GDR, NDR) mengacu pada Buku Petunjuk Pengisian, Pengolahan, dan Penyajian Data Rumah Sakit, Depkes RI (2005).
+  </footer>
+
+  <div id="areaCetak"></div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

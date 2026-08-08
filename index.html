@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Sistem Indikator Rawat Inap</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="login-box">
+
+      <div class="logo-area">
+       <img src="logo.png" alt="Logo" class="logo-icon">
+        <h1>SIRI</h1>
+        <p>Sistem Indikator Rawat Inap</p>
+      </div>
+
+      <form id="loginForm">
+        <div class="input-group">
+          <label for="username">Nama Petugas / NIP</label>
+          <input type="text" id="username" placeholder="Masukkan NIP atau nama" required>
+        </div>
+
+        <div class="input-group">
+          <label for="password">Kata Sandi</label>
+          <input type="password" id="password" placeholder="Masukkan kata sandi" required>
+        </div>
+
+        <p id="errorMsg" class="error-message"></p>
+
+        <button type="submit">Masuk</button>
+      </form>
+
+      <p class="footer-text">Laboratorium Rekam Medis dan Informasi Kesehatan</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
