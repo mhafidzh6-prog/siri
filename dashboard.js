@@ -273,11 +273,11 @@ function gambarGrafikBarberJohnson(toi, avlos, bor, btoTahunan) {
     const nx = (maxToi / jumlahGrid) * i;
     const x = posX(nx);
     gridlines += `<line x1="${x}" y1="${tinggi - margin}" x2="${x}" y2="20" stroke="#eee" stroke-width="1"/>`;
-    gridlines += `<text x="${x}" y="${tinggi - margin + 18}" text-anchor="middle" font-size="10" fill="#999">${nx.toFixed(1)}</text>`;
+    gridlines += `<text x="${x}" y="${tinggi - margin + 18}" text-anchor="middle" font-size="10" fill="#999">${Math.round(nx)}</text>`;
     const ny = (maxAvlos / jumlahGrid) * i;
     const y = posY(ny);
     gridlines += `<line x1="${margin}" y1="${y}" x2="${lebar - 20}" y2="${y}" stroke="#eee" stroke-width="1"/>`;
-    gridlines += `<text x="${margin - 8}" y="${y + 4}" text-anchor="end" font-size="10" fill="#999">${ny.toFixed(1)}</text>`;
+    gridlines += `<text x="${margin - 8}" y="${y + 4}" text-anchor="end" font-size="10" fill="#999">${Math.round(ny)}</text>`;
   }
 
   const polyPoints = [V1, V2, V3, V4].map(v => `${posX(v.toi)},${posY(v.avlos)}`).join(' ');
@@ -328,8 +328,8 @@ function gambarGrafikBarberJohnson(toi, avlos, bor, btoTahunan) {
       <text x="${lebar / 2}" y="${tinggi - 10}" text-anchor="middle" font-size="13" fill="#333">TOI (hari)</text>
       <text x="15" y="${tinggi / 2}" text-anchor="middle" font-size="13" fill="#333" transform="rotate(-90, 15, ${tinggi / 2})">AvLOS (hari)</text>
       <circle cx="${titikX}" cy="${titikY}" r="7" fill="${warnaTitik}" stroke="white" stroke-width="2"/>
-      <text x="${labelX}" y="${titikY - 10}" text-anchor="${labelAnchor}" font-size="11" fill="${warnaTitik}" font-weight="bold">BOR:${bor.toFixed(1)}% AvLOS:${avlos.toFixed(1)}</text>
-      <text x="${labelX}" y="${titikY + 20}" text-anchor="${labelAnchor}" font-size="11" fill="${warnaTitik}" font-weight="bold">TOI:${toi.toFixed(1)} BTO:${btoTahunan.toFixed(1)}/thn</text>
+      <text x="${labelX}" y="${titikY - 10}" text-anchor="${labelAnchor}" font-size="11" fill="${warnaTitik}" font-weight="bold">BOR:${Math.round(bor)}% AvLOS:${Math.round(avlos)}</text>
+      <text x="${labelX}" y="${titikY + 20}" text-anchor="${labelAnchor}" font-size="11" fill="${warnaTitik}" font-weight="bold">TOI:${Math.round(toi)} BTO:${Math.round(btoTahunan)}/thn</text>
     </svg>
   `;
 
@@ -342,7 +342,7 @@ function gambarGrafikBarberJohnson(toi, avlos, bor, btoTahunan) {
 
   const infoTitikEl = document.getElementById('infoTitikGrafik');
   if (infoTitikEl) {
-    infoTitikEl.textContent = `Titik koordinat data ini: TOI (sumbu-X) = ${toi.toFixed(2)} hari, AvLOS (sumbu-Y) = ${avlos.toFixed(2)} hari — digambar sebagai titik bulat merah/hijau pada grafik di atas (bukan bagian dari arsiran). Area segi-empat hijau yang diarsir hanyalah batas ideal (BOR 60–85%, BTO 40–50 kali/tahun); titik data bisa jatuh di luar arsiran itu kalau nilainya di luar standar.`;
+infoTitikEl.textContent = `Titik koordinat data ini: TOI (sumbu-X) = ${Math.round(toi)} hari, AvLOS (sumbu-Y) = ${Math.round(avlos)} hari
   }
 }
 
