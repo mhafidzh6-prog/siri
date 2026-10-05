@@ -157,10 +157,10 @@ document.getElementById('hitungForm').addEventListener('submit', function (e) {
   const bto = pasienKeluar / tempatTidur;
   const btoTahunan = bto * (365 / periode);
 
-  document.getElementById('borHasil').textContent = bor.toFixed(2) + '%';
-  document.getElementById('avlosHasil').textContent = avlos.toFixed(2) + ' hari';
-  document.getElementById('toiHasil').textContent = toi.toFixed(2) + ' hari';
-  document.getElementById('btoHasil').textContent = bto.toFixed(2) + ' kali (≈' + btoTahunan.toFixed(1) + '/thn)';
+  document.getElementById('borHasil').textContent = Math.round(bor) + '%';
+  document.getElementById('avlosHasil').textContent = Math.round(avlos) + ' hari';
+  document.getElementById('toiHasil').textContent = Math.round(toi) + ' hari';
+  document.getElementById('btoHasil').textContent = Math.round(bto) + ' kali (≈' + Math.round(btoTahunan) + '/thn)';
 
   setStatusKotak('borBox', bor >= 60 && bor <= 85);
   setStatusKotak('avlosBox', avlos >= 6 && avlos <= 9);
