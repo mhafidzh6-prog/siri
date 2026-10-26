@@ -732,7 +732,6 @@ document.getElementById('pasienMasukForm').addEventListener('submit', function (
     jk: document.getElementById('pmJk').value,
     poli: document.getElementById('pmPoli').value.trim(),
     ruangan: ruanganBaru,
-    departemen: document.getElementById('pmDepartemen').value,
     caraMasuk: document.getElementById('pmCaraMasuk').value,
     alamat: document.getElementById('pmAlamat').value.trim(),
     tglMasuk: document.getElementById('pmTglMasuk').value,
@@ -743,9 +742,9 @@ document.getElementById('pasienMasukForm').addEventListener('submit', function (
     Object.assign(data[indexEditPasien], isian);
     const p = data[indexEditPasien];
     if (!p.riwayatPenempatan || !p.riwayatPenempatan.length) {
-      p.riwayatPenempatan = [{ tanggal: isian.tglMasuk, ruangan: isian.ruangan, kelas: isian.poli, departemen: isian.departemen }];
+      p.riwayatPenempatan = [{ tanggal: isian.tglMasuk, ruangan: isian.ruangan, kelas: isian.poli }];
     } else {
-      p.riwayatPenempatan[0] = { tanggal: isian.tglMasuk, ruangan: isian.ruangan, kelas: isian.poli, departemen: isian.departemen };
+      p.riwayatPenempatan[0] = { ...p.riwayatPenempatan[0], tanggal: isian.tglMasuk, ruangan: isian.ruangan, kelas: isian.poli };
     }
     indexEditPasien = null;
     document.querySelector('#pasienMasukForm button[type="submit"]').textContent = 'Simpan Pasien Masuk';
@@ -756,7 +755,7 @@ document.getElementById('pasienMasukForm').addEventListener('submit', function (
       tglKeluar: null,
       keadaanKeluar: null,
       diagnosa: [],
-      riwayatPenempatan: [{ tanggal: isian.tglMasuk, ruangan: isian.ruangan, kelas: isian.poli, departemen: isian.departemen }]
+      riwayatPenempatan: [{ tanggal: isian.tglMasuk, ruangan: isian.ruangan, kelas: isian.poli }]
     });
   }
 
@@ -776,7 +775,6 @@ function bukaFormEditPasien(index) {
   document.getElementById('pmJk').value = p.jk;
   document.getElementById('pmPoli').value = p.poli;
   document.getElementById('pmRuangan').value = p.ruangan || '';
-  document.getElementById('pmDepartemen').value = p.departemen || '';
   document.getElementById('pmCaraMasuk').value = p.caraMasuk || '';
   document.getElementById('pmAlamat').value = p.alamat || '';
   document.getElementById('pmTglMasuk').value = p.tglMasuk;
@@ -799,14 +797,14 @@ function batalEditPasien() {
 function renderTabelPasienAktif() {
   const keyword = (document.getElementById('cariPasienAktif')?.value || '').toLowerCase();
   const data = ambilDataPasien();
- let html = '<tr><th>No. RM</th><th>Nama</th><th>Umur</th><th>JK</th><th>Departemen</th><th>Kelas</th><th>Ruangan</th><th>Alamat</th><th>Tgl Masuk</th><th>DPJP</th><th>Aksi</th></tr>';
+ let html = '<tr><th>No. RM</th><th>Nama</th><th>Umur</th><th>JK</th><th>Kelas</th><th>Ruangan</th><th>Alamat</th><th>Tgl Masuk</th><th>DPJP</th><th>Aksi</th></tr>';
   let ada = false;
   data.forEach((p, i) => {
     if (p.tglKeluar) return;
     if (keyword && !p.nama.toLowerCase().includes(keyword) && !p.mrn.toLowerCase().includes(keyword)) return;
     ada = true;
     html += `<tr>
-      <td>${p.mrn}</td><td>${p.nama}</td><td>${p.umur}</td><td>${p.jk}</td><td>${p.departemen || '-'}</td><td>${p.poli}</td><td>${p.ruangan || '-'}</td><td>${p.alamat || '-'}</td>
+      <td>${p.mrn}</td><td>${p.nama}</td><td>${p.umur}</td><td>${p.jk}</td><td>${p.poli}</td><td>${p.ruangan || '-'}</td><td>${p.alamat || '-'}</td>
       <td>${p.tglMasuk}</td><td>${p.dpjp}</td>
       <td>
         <button type="button" class="btn-diagnosa" onclick="bukaFormEditPasien(${i})">Edit</button>
@@ -816,7 +814,7 @@ function renderTabelPasienAktif() {
       </td>
     </tr>`;
   });
-  if (!ada) html += '<tr><td colspan="11">Tidak ada pasien yang cocok</td></tr>';
+  if (!ada) html += '<tr><td colspan="10">Tidak ada pasien yang cocok</td></tr>';
   document.getElementById('tabelPasienAktif').innerHTML = html;
 }
 
@@ -825,7 +823,7 @@ let indexPasienUntukPulang = null;
 function ambilPenempatanPadaTanggal(p, tglStr) {
   const riwayat = (p.riwayatPenempatan && p.riwayatPenempatan.length)
     ? p.riwayatPenempatan
-    : [{ tanggal: p.tglMasuk, ruangan: p.ruangan, kelas: p.poli, departemen: p.departemen }];
+    : [{ tanggal: p.tglMasuk, ruangan: p.ruangan, kelas: p.poli }];
   let aktif = riwayat[0];
   for (const r of riwayat) {
     if (r.tanggal <= tglStr) aktif = r; else break;
@@ -838,7 +836,7 @@ let indexPasienUntukPindah = null;
 function bukaFormPindahRuangan(index) {
   indexPasienUntukPindah = index;
   const p = ambilDataPasien()[index];
-  document.getElementById('pindahRuanganPasienInfo').textContent = `Pasien: ${p.nama} (No. RM: ${p.mrn}) — Ruangan/Kelas/Departemen saat ini: ${p.ruangan || '-'} / ${p.poli} / ${p.departemen || '-'}`;
+  document.getElementById('pindahRuanganPasienInfo').textContent = `Pasien: ${p.nama} (No. RM: ${p.mrn}) — Ruangan/Kelas saat ini: ${p.ruangan || '-'} / ${p.poli}`;
   document.getElementById('prTglPindah').min = p.tglMasuk;
   renderTabelRiwayatPindah(p);
   document.getElementById('pindahRuanganFormSection').style.display = 'block';
@@ -848,10 +846,10 @@ function bukaFormPindahRuangan(index) {
 function renderTabelRiwayatPindah(p) {
   const riwayat = (p.riwayatPenempatan && p.riwayatPenempatan.length)
     ? p.riwayatPenempatan
-    : [{ tanggal: p.tglMasuk, ruangan: p.ruangan, kelas: p.poli, departemen: p.departemen }];
-  let html = '<tr><th>Tanggal</th><th>Ruangan</th><th>Kelas</th><th>Departemen</th><th>Keterangan</th></tr>';
+    : [{ tanggal: p.tglMasuk, ruangan: p.ruangan, kelas: p.poli }];
+  let html = '<tr><th>Tanggal</th><th>Ruangan</th><th>Kelas</th><th>Keterangan</th></tr>';
   riwayat.forEach((r, i) => {
-    html += `<tr><td>${r.tanggal}</td><td>${r.ruangan}</td><td>${r.kelas}</td><td>${r.departemen || '-'}</td><td>${i === 0 ? 'Masuk pertama kali' : 'Pindahan intern RS'}</td></tr>`;
+    html += `<tr><td>${r.tanggal}</td><td>${r.ruangan}</td><td>${r.kelas}</td><td>${i === 0 ? 'Masuk pertama kali' : 'Pindahan intern RS'}</td></tr>`;
   });
   document.getElementById('tabelRiwayatPindah').innerHTML = html;
 }
@@ -874,7 +872,7 @@ document.getElementById('pindahRuanganForm').addEventListener('submit', function
   }
   const riwayatSekarang = p.riwayatPenempatan && p.riwayatPenempatan.length
     ? p.riwayatPenempatan
-    : [{ tanggal: p.tglMasuk, ruangan: p.ruangan, kelas: p.poli, departemen: p.departemen }];
+    : [{ tanggal: p.tglMasuk, ruangan: p.ruangan, kelas: p.poli }];
   const tglTerakhir = riwayatSekarang[riwayatSekarang.length - 1].tanggal;
   if (tglPindah < tglTerakhir) {
     alert('Tanggal Pindah tidak boleh sebelum tanggal perpindahan terakhir yang sudah tercatat (' + tglTerakhir + ').');
@@ -887,21 +885,19 @@ document.getElementById('pindahRuanganForm').addEventListener('submit', function
     alert('Ruangan Baru dan Kelas Baru wajib diisi (tidak boleh kosong atau hanya berisi spasi).');
     return;
   }
-  const departemenBaru = document.getElementById('prDepartemenBaru').value || p.departemen;
 
-  riwayatSekarang.push({ tanggal: tglPindah, ruangan: ruanganBaru, kelas: kelasBaru, departemen: departemenBaru });
+  riwayatSekarang.push({ tanggal: tglPindah, ruangan: ruanganBaru, kelas: kelasBaru });
   p.riwayatPenempatan = riwayatSekarang;
   p.ruangan = ruanganBaru;
   p.poli = kelasBaru;
-  p.departemen = departemenBaru;
 
   simpanDataPasien(data);
   renderTabelPasienAktif();
   renderBeranda();
-  document.getElementById('pindahRuanganPasienInfo').textContent = `Pasien: ${p.nama} (No. RM: ${p.mrn}) — Ruangan/Kelas/Departemen saat ini: ${p.ruangan} / ${p.poli} / ${p.departemen}`;
+  document.getElementById('pindahRuanganPasienInfo').textContent = `Pasien: ${p.nama} (No. RM: ${p.mrn}) — Ruangan/Kelas saat ini: ${p.ruangan} / ${p.poli}`;
   renderTabelRiwayatPindah(p);
   this.reset();
-  alert('Perpindahan ruangan/kelas/departemen tersimpan.');
+  alert('Perpindahan ruangan/kelas tersimpan.');
 });
 
 function bukaFormPulang(index) {
@@ -987,7 +983,7 @@ function renderTabelPasien() {
   const keyword = (document.getElementById('cariPasienPulang')?.value || '').toLowerCase();
   const tahunFilter = document.getElementById('filterTahunPasienPulang')?.value || '';
   const data = ambilDataPasien();
-  let html = '<tr><th>No. RM</th><th>Nama</th><th>Umur</th><th>JK</th><th>Departemen</th><th>Kelas</th><th>Ruangan</th><th>Alamat</th><th>Tgl Masuk</th><th>Tgl Keluar</th><th>Jam Keluar</th><th>Cara Keluar</th><th>Cara Bayar</th><th>DPJP</th><th>Diagnosa &amp; Tindakan</th><th>Aksi</th></tr>';
+  let html = '<tr><th>No. RM</th><th>Nama</th><th>Umur</th><th>JK</th><th>Kelas</th><th>Ruangan</th><th>Alamat</th><th>Tgl Masuk</th><th>Tgl Keluar</th><th>Jam Keluar</th><th>Cara Keluar</th><th>Cara Bayar</th><th>DPJP</th><th>Diagnosa &amp; Tindakan</th><th>Aksi</th></tr>';
   let ada = false;
   data.forEach((p, i) => {
     if (!p.tglKeluar) return;
@@ -1004,7 +1000,7 @@ function renderTabelPasien() {
         }).join('<hr style="margin:4px 0; border-top:1px dashed #ddd;">')
       : '<span style="color:#d32f2f;">Belum diisi</span>';
     html += `<tr>
-      <td>${p.mrn}</td><td>${p.nama}</td><td>${p.umur}</td><td>${p.jk}</td><td>${p.departemen || '-'}</td><td>${p.poli}</td><td>${p.ruangan || '-'}</td><td>${p.alamat || '-'}</td>
+      <td>${p.mrn}</td><td>${p.nama}</td><td>${p.umur}</td><td>${p.jk}</td><td>${p.poli}</td><td>${p.ruangan || '-'}</td><td>${p.alamat || '-'}</td>
       <td>${p.tglMasuk || '-'}</td><td>${p.tglKeluar}</td><td>${p.jamKeluar || '-'}</td><td>${labelCaraKeluar(p.caraKeluar, p.keadaanPulang)}</td>
       <td>${p.caraBayar || '-'}</td><td>${p.dpjp}</td><td>${diagnosaText}</td>
       <td>
@@ -1015,7 +1011,7 @@ function renderTabelPasien() {
       </td>
     </tr>`;
   });
-  if (!ada) html += '<tr><td colspan="16">Belum ada pasien yang cocok</td></tr>';
+  if (!ada) html += '<tr><td colspan="15">Belum ada pasien yang cocok</td></tr>';
   document.getElementById('tabelPasien').innerHTML = html;
 }
 
@@ -1142,7 +1138,7 @@ document.getElementById('btnTampilRekap').addEventListener('click', function () 
   const data = ambilDataPasien().filter(p => p.tglKeluar && p.tglKeluar >= awal && p.tglKeluar <= akhir && p.diagnosa.length > 0);
   data.sort((a, b) => (a.diagnosa[0].kode || '').localeCompare(b.diagnosa[0].kode || ''));
 
-  let html = '<tr><th>No. RM</th><th>Nama</th><th>Umur</th><th>JK</th><th>Poli</th><th>Ruangan</th><th>Tgl Keluar</th><th>DPJP</th><th>Diagnosa</th></tr>';
+  let html = '<tr><th>No. RM</th><th>Nama</th><th>Umur</th><th>JK</th><th>Kelas</th><th>Ruangan</th><th>Tgl Keluar</th><th>DPJP</th><th>Diagnosa</th></tr>';
   data.forEach(p => {
     const diagnosaText = p.diagnosa.map(d => `${d.kode} - ${d.nama}`).join(', ');
     html += `<tr><td>${p.mrn}</td><td>${p.nama}</td><td>${p.umur}</td><td>${p.jk}</td><td>${p.poli}</td><td>${p.ruangan || '-'}</td><td>${p.tglKeluar}</td><td>${p.dpjp}</td><td>${diagnosaText}</td></tr>`;
@@ -1404,191 +1400,11 @@ document.getElementById('btnResetSemua').addEventListener('click', function () {
   alert('Semua data pasien telah dihapus.');
 });
 
-document.getElementById('btnAturTT').addEventListener('click', function () {
-  const div = document.getElementById('formTTDepartemen');
-  if (div.style.display === 'block') { div.style.display = 'none'; return; }
-
-  const semua = ambilDataPasien();
-  const daftarDept = [...new Set(semua.flatMap(p => {
-    const riwayat = (p.riwayatPenempatan && p.riwayatPenempatan.length) ? p.riwayatPenempatan : [{ departemen: p.departemen }];
-    return riwayat.map(r => r.departemen);
-  }).filter(Boolean))];
-  if (daftarDept.length === 0) {
-    alert('Belum ada data pasien dengan Jenis Pelayanan/Departemen terisi. Isi dulu di Langkah 1.');
-    return;
-  }
-  const konfigTT = JSON.parse(localStorage.getItem('konfigTTDepartemen') || '{}');
-
-  let html = '<div class="mortalitas-input-list">';
-  daftarDept.forEach(dept => {
-    const id = 'tt_' + dept.replace(/\s+/g, '_');
-    html += `<div class="mortalitas-row-input" style="grid-template-columns: 1fr 150px;">
-      <span style="align-self:center; font-size:13px; font-weight:600;">${dept}</span>
-      <input type="number" id="${id}" min="0" placeholder="Jumlah TT" value="${konfigTT[dept] || ''}">
-    </div>`;
-  });
-  html += '</div><button type="button" id="btnSimpanTT" class="btn-hitung" style="margin-top:14px;">Simpan Jumlah Tempat Tidur</button>';
-  div.innerHTML = html;
-  div.style.display = 'block';
-
-  document.getElementById('btnSimpanTT').addEventListener('click', function () {
-    const konfig = {};
-    daftarDept.forEach(dept => {
-      const id = 'tt_' + dept.replace(/\s+/g, '_');
-      konfig[dept] = Number(document.getElementById(id).value) || 0;
-    });
-    localStorage.setItem('konfigTTDepartemen', JSON.stringify(konfig));
-    alert('Jumlah tempat tidur per departemen tersimpan.');
-    div.style.display = 'none';
-  });
-});
-
-const KELAS_LIST_RL1 = ['Utama/VIP', 'I', 'II', 'IIIA', 'IIIB'];
-
-function hitungSensusDepartemen(semuaPasien, dept, awal, akhir) {
-  const pasienDept = semuaPasien.filter(p => p.departemen === dept);
-
-  let tglJalan = new Date(awal + 'T00:00:00');
-  const tglBatas = new Date(akhir + 'T00:00:00');
-  let totalHariPerawatan = 0;
-  let maxSensusHarian = 0;
-  const sisaPerKelas = {}; KELAS_LIST_RL1.forEach(k => sisaPerKelas[k] = 0);
-
-  while (tglJalan <= tglBatas) {
-    const tglStr = tglJalan.toISOString().slice(0, 10);
-    let hadirHariIni = 0;
-    semuaPasien.forEach(p => {
-      if (p.tglMasuk <= tglStr && (!p.tglKeluar || tglStr < p.tglKeluar)) {
-        const seg = ambilPenempatanPadaTanggal(p, tglStr);
-        if (seg.departemen === dept) {
-          hadirHariIni++;
-          const k = klasifikasiKelas(seg.kelas);
-          if (sisaPerKelas[k] !== undefined) sisaPerKelas[k]++;
-        }
-      }
-    });
-    totalHariPerawatan += hadirHariIni;
-    if (hadirHariIni > maxSensusHarian) maxSensusHarian = hadirHariIni;
-    tglJalan.setDate(tglJalan.getDate() + 1);
-  }
-
-  const pasienSatuHari = pasienDept.filter(p => p.tglMasuk === p.tglKeluar && p.tglKeluar >= awal && p.tglKeluar <= akhir).length;
-  totalHariPerawatan += pasienSatuHari;
-
-  const pasienAwalPeriode = semuaPasien.filter(p =>
-    p.tglMasuk < awal && (!p.tglKeluar || p.tglKeluar >= awal) &&
-    ambilPenempatanPadaTanggal(p, awal).departemen === dept
-  ).length;
-
-  const masukPeriode = semuaPasien.filter(p => {
-    if (!(p.tglMasuk >= awal && p.tglMasuk <= akhir)) return false;
-    const riwayat = (p.riwayatPenempatan && p.riwayatPenempatan.length) ? p.riwayatPenempatan : [{ departemen: p.departemen }];
-    return riwayat[0].departemen === dept;
-  }).length;
-
-  const keluarPeriode = pasienDept.filter(p => p.tglKeluar && p.tglKeluar >= awal && p.tglKeluar <= akhir);
-  const keluarHidup = keluarPeriode.filter(p => p.keadaanKeluar === 'hidup').length;
-  const mati48K = keluarPeriode.filter(p => p.keadaanKeluar === 'mati_kurang48').length;
-  const mati48L = keluarPeriode.filter(p => p.keadaanKeluar === 'mati_lebih48').length;
-  const jumlahKeluar = keluarHidup + mati48K + mati48L;
-
-  const pasienSisa = semuaPasien.filter(p =>
-    p.tglMasuk <= akhir && (!p.tglKeluar || p.tglKeluar > akhir) &&
-    ambilPenempatanPadaTanggal(p, akhir).departemen === dept
-  ).length;
-
-  const lamaDirawat = keluarPeriode.reduce((s, p) => {
-    const los = Math.round((new Date(p.tglKeluar) - new Date(p.tglMasuk)) / 86400000);
-    return s + (los === 0 ? 1 : los);
-  }, 0);
-
-  let pindahanMasuk = 0, pindahanKeluar = 0;
-  semuaPasien.forEach(p => {
-    const riwayat = (p.riwayatPenempatan && p.riwayatPenempatan.length)
-      ? p.riwayatPenempatan
-      : [{ tanggal: p.tglMasuk, departemen: p.departemen }];
-    for (let idx = 1; idx < riwayat.length; idx++) {
-      const tglPindah = riwayat[idx].tanggal;
-      if (tglPindah < awal || tglPindah > akhir) continue;
-      const deptSebelum = riwayat[idx - 1].departemen;
-      const deptSesudah = riwayat[idx].departemen;
-      if (deptSebelum === deptSesudah) continue;
-      if (deptSesudah === dept) pindahanMasuk++;
-      if (deptSebelum === dept) pindahanKeluar++;
-    }
-  });
-
-  return { pasienAwalPeriode, masukPeriode, pindahanMasuk, pindahanKeluar, keluarHidup, mati48K, mati48L, jumlahKeluar, totalHariPerawatan, pasienSisa, lamaDirawat, sisaPerKelas, maxSensusHarian };
-}
-
-document.getElementById('btnHitungRL1').addEventListener('click', function () {
-  const awal = document.getElementById('sensusAwal').value;
-  const akhir = document.getElementById('sensusAkhir').value;
-  if (!awal || !akhir) {
-    alert('Isi Periode Awal & Akhir di form bagian atas dulu.');
-    return;
-  }
-
-  const semua = ambilDataPasien().filter(p => p.tglMasuk);
-  const daftarDept = [...new Set(semua.flatMap(p => {
-    const riwayat = (p.riwayatPenempatan && p.riwayatPenempatan.length) ? p.riwayatPenempatan : [{ departemen: p.departemen }];
-    return riwayat.map(r => r.departemen);
-  }).filter(Boolean))];
-  if (daftarDept.length === 0) {
-    alert('Belum ada data pasien dengan Jenis Pelayanan/Departemen terisi. Isi dulu di Langkah 1.');
-    return;
-  }
-
-  const konfigTT = JSON.parse(localStorage.getItem('konfigTTDepartemen') || '{}');
-  const jumlahHari = Math.round((new Date(akhir + 'T00:00:00') - new Date(awal + 'T00:00:00')) / 86400000) + 1;
-
-  let html = '<tr><th>No</th><th>Departemen</th><th>TT</th><th>Pasien Awal</th><th>Masuk</th><th>Pindahan Masuk</th><th>Pindahan Keluar</th><th>Keluar Hidup</th><th>Mati&lt;48j</th><th>Mati&ge;48j</th><th>Jml Keluar</th><th>Lama Dirawat</th><th>Hari Perawatan</th><th>Utama/VIP</th><th>Kls I</th><th>Kls II</th><th>Kls IIIA</th><th>Kls IIIB</th><th>Pasien Sisa</th><th>Max Sensus</th><th>BOR%</th></tr>';
-  let totalAwal = 0, totalMasuk = 0, totalPindahMasuk = 0, totalPindahKeluar = 0, totalHidup = 0, totalM1 = 0, totalM2 = 0, totalKeluar = 0, totalLama = 0, totalHP = 0, totalSisa = 0, totalTT = 0;
-  const totalKelas = { 'Utama/VIP': 0, 'I': 0, 'II': 0, 'IIIA': 0, 'IIIB': 0 };
-
-  daftarDept.forEach((dept, i) => {
-    const r = hitungSensusDepartemen(semua, dept, awal, akhir);
-    const tt = konfigTT[dept] || 0;
-    const bor = tt > 0 ? ((r.totalHariPerawatan / (tt * jumlahHari)) * 100).toFixed(1) : '-';
-    html += `<tr>
-      <td>${i + 1}</td><td>${dept}</td><td>${tt || '-'}</td>
-      <td>${r.pasienAwalPeriode}</td><td>${r.masukPeriode}</td><td>${r.pindahanMasuk}</td><td>${r.pindahanKeluar}</td><td>${r.keluarHidup}</td>
-      <td>${r.mati48K}</td><td>${r.mati48L}</td><td>${r.jumlahKeluar}</td><td>${r.lamaDirawat}</td>
-      <td>${r.totalHariPerawatan}</td>
-      <td>${r.sisaPerKelas['Utama/VIP']}</td><td>${r.sisaPerKelas['I']}</td><td>${r.sisaPerKelas['II']}</td><td>${r.sisaPerKelas['IIIA']}</td><td>${r.sisaPerKelas['IIIB']}</td>
-      <td>${r.pasienSisa}</td><td>${r.maxSensusHarian}</td><td>${bor}</td>
-    </tr>`;
-    totalAwal += r.pasienAwalPeriode; totalMasuk += r.masukPeriode; totalPindahMasuk += r.pindahanMasuk; totalPindahKeluar += r.pindahanKeluar; totalHidup += r.keluarHidup;
-    totalM1 += r.mati48K; totalM2 += r.mati48L; totalKeluar += r.jumlahKeluar; totalLama += r.lamaDirawat;
-    totalHP += r.totalHariPerawatan; totalSisa += r.pasienSisa; totalTT += tt;
-    Object.keys(totalKelas).forEach(k => totalKelas[k] += r.sisaPerKelas[k]);
-  });
-
-  const borTotal = totalTT > 0 ? ((totalHP / (totalTT * jumlahHari)) * 100).toFixed(1) : '-';
-  html += `<tr style="font-weight:700; background:#f5f5f5;">
-    <td colspan="2">TOTAL</td><td>${totalTT}</td>
-    <td>${totalAwal}</td><td>${totalMasuk}</td><td>${totalPindahMasuk}</td><td>${totalPindahKeluar}</td><td>${totalHidup}</td>
-    <td>${totalM1}</td><td>${totalM2}</td><td>${totalKeluar}</td><td>${totalLama}</td>
-    <td>${totalHP}</td>
-    <td>${totalKelas['Utama/VIP']}</td><td>${totalKelas['I']}</td><td>${totalKelas['II']}</td><td>${totalKelas['IIIA']}</td><td>${totalKelas['IIIB']}</td>
-    <td>${totalSisa}</td><td>-</td><td>${borTotal}</td>
-  </tr>`;
-
-  document.getElementById('tabelRL1').innerHTML = html;
-  document.getElementById('rl1PeriodeInfo').textContent = `Periode: ${awal} s/d ${akhir} (${jumlahHari} hari)`;
-  document.getElementById('rl1Section').style.display = 'block';
-  document.getElementById('rl1Section').scrollIntoView({ behavior: 'smooth' });
-});
-
-document.getElementById('btnCetakRL1').addEventListener('click', function () {
-  cetakTabel('tabelRL1', 'Laporan RL1 - Data Kegiatan Rawat Inap per Departemen');
-});
-
 document.getElementById('btnCetakRekapBulanan').addEventListener('click', function () {
   cetakTabel('tabelRekapBulanan', 'Rekap per Bulan (Data Triwulan)');
 });
 
-const KUNCI_BACKUP = ['dataPasienPulang', 'konfigTTDepartemen', 'jumlahTempatTidurRS'];
+const KUNCI_BACKUP = ['dataPasienPulang', 'jumlahTempatTidurRS'];
 
 document.getElementById('btnDownloadBackup').addEventListener('click', function () {
   const backup = {

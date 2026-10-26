@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>    
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Sistem Informasi Rawat Inap</title>
@@ -212,36 +212,6 @@
                 <input type="text" id="pmRuangan" placeholder="contoh: Ruang Melati, Ruang Anggrek Lt. 2" required>
               </div>
               <div class="input-group">
-                <label for="pmDepartemen">Jenis Pelayanan / Departemen</label>
-                <select id="pmDepartemen" required>
-                  <option value="">Pilih</option>
-                  <option value="Penyakit Dalam">Penyakit Dalam</option>
-                  <option value="Bedah">Bedah</option>
-                  <option value="Kesehatan Anak">Kesehatan Anak</option>
-                  <option value="Obstetri">Obstetri</option>
-                  <option value="Ginekologi">Ginekologi</option>
-                  <option value="Bedah Saraf">Bedah Saraf</option>
-                  <option value="Saraf">Saraf</option>
-                  <option value="Jiwa">Jiwa</option>
-                  <option value="THT">THT</option>
-                  <option value="Mata">Mata</option>
-                  <option value="Kulit dan Kelamin">Kulit dan Kelamin</option>
-                  <option value="Gigi dan Mulut">Gigi dan Mulut</option>
-                  <option value="Kardiologi">Kardiologi</option>
-                  <option value="Radioterapi/Kedokteran Nuklir">Radioterapi/Kedokteran Nuklir</option>
-                  <option value="Bedah Orthopedi">Bedah Orthopedi</option>
-                  <option value="Paru-paru">Paru-paru</option>
-                  <option value="Kusta">Kusta</option>
-                  <option value="Umum">Umum</option>
-                  <option value="Rehabilitasi Medik">Rehabilitasi Medik</option>
-                  <option value="Isolasi">Isolasi</option>
-                  <option value="Luka Bakar">Luka Bakar</option>
-                  <option value="ICU">ICU</option>
-                  <option value="ICCU">ICCU</option>
-                  <option value="Perinatologi">Perinatologi</option>
-                </select>
-              </div>
-              <div class="input-group">
                 <label for="pmCaraMasuk">Cara Pasien Masuk</label>
                 <select id="pmCaraMasuk" required>
                   <option value="">Pilih</option>
@@ -274,7 +244,7 @@
             <h3>Pasien Sedang Dirawat</h3>
             <button type="button" id="btnCetakPasienAktif" class="btn-cetak">🖨️ Cetak / PDF</button>
           </div>
-          <p class="card-subtitle">Klik "Proses Pulang" saat pasien akan keluar/pulang, atau "Pindah Ruangan" kalau pasien pindah ruangan/kelas/departemen selama masih dirawat (pasien pindahan intern RS)</p>
+          <p class="card-subtitle">Klik "Proses Pulang" saat pasien akan keluar/pulang, atau "Pindah Ruangan" kalau pasien pindah ruangan/kelas selama masih dirawat (pasien pindahan intern RS)</p>
           <div class="input-group" style="margin-bottom:14px;">
             <input type="text" id="cariPasienAktif" placeholder="🔍 Cari nama atau No. RM..." oninput="renderTabelPasienAktif()">
           </div>
@@ -284,7 +254,7 @@
         </section>
 
        <section class="card" id="pindahRuanganFormSection" style="display:none;">
-          <h3>Pindah Ruangan / Kelas / Departemen Intern RS</h3>
+          <h3>Pindah Ruangan / Kelas Intern RS</h3>
           <p class="card-subtitle" id="pindahRuanganPasienInfo"></p>
           <form id="pindahRuanganForm">
             <div class="form-grid">
@@ -299,36 +269,6 @@
               <div class="input-group">
                 <label for="prKelasBaru">Kelas Perawatan Baru</label>
                 <input type="text" id="prKelasBaru" placeholder="contoh: III A, VIP A, Kelas I" required>
-              </div>
-              <div class="input-group">
-                <label for="prDepartemenBaru">Departemen Baru (kosongkan jika tetap sama)</label>
-                <select id="prDepartemenBaru">
-                  <option value="">— Tetap departemen sekarang —</option>
-                  <option value="Penyakit Dalam">Penyakit Dalam</option>
-                  <option value="Bedah">Bedah</option>
-                  <option value="Kesehatan Anak">Kesehatan Anak</option>
-                  <option value="Obstetri">Obstetri</option>
-                  <option value="Ginekologi">Ginekologi</option>
-                  <option value="Bedah Saraf">Bedah Saraf</option>
-                  <option value="Saraf">Saraf</option>
-                  <option value="Jiwa">Jiwa</option>
-                  <option value="THT">THT</option>
-                  <option value="Mata">Mata</option>
-                  <option value="Kulit dan Kelamin">Kulit dan Kelamin</option>
-                  <option value="Gigi dan Mulut">Gigi dan Mulut</option>
-                  <option value="Kardiologi">Kardiologi</option>
-                  <option value="Radioterapi/Kedokteran Nuklir">Radioterapi/Kedokteran Nuklir</option>
-                  <option value="Bedah Orthopedi">Bedah Orthopedi</option>
-                  <option value="Paru-paru">Paru-paru</option>
-                  <option value="Kusta">Kusta</option>
-                  <option value="Umum">Umum</option>
-                  <option value="Rehabilitasi Medik">Rehabilitasi Medik</option>
-                  <option value="Isolasi">Isolasi</option>
-                  <option value="Luka Bakar">Luka Bakar</option>
-                  <option value="ICU">ICU</option>
-                  <option value="ICCU">ICCU</option>
-                  <option value="Perinatologi">Perinatologi</option>
-                </select>
               </div>
             </div>
             <button type="submit" class="btn-hitung">Simpan Perpindahan</button>
@@ -499,25 +439,6 @@
           <p class="card-subtitle">Ringkasan per bulan dari periode yang dipilih, format seperti tabel Data Triwulan pada RP1</p>
           <div class="table-wrap">
             <table class="hasil-table" id="tabelRekapBulanan"></table>
-          </div>
-        </section>
-
-        <section class="card">
-          <h3>Langkah 2b: Rekap per Departemen (Format RL1)</h3>
-          <p class="card-subtitle">Menghitung indikator rawat inap terpisah untuk setiap jenis pelayanan/departemen, pada periode yang sama seperti di atas (isi Periode Awal &amp; Akhir dulu)</p>
-          <button type="button" id="btnAturTT" class="btn-cetak" style="margin-bottom:14px;">⚙️ Atur Tempat Tidur per Departemen</button>
-          <div id="formTTDepartemen" style="display:none; margin-bottom:18px;"></div>
-          <button type="button" id="btnHitungRL1" class="btn-hitung">Hitung Rekap Semua Departemen</button>
-        </section>
-
-        <section class="card" id="rl1Section" style="display:none;">
-          <div class="print-header">
-            <h3>Laporan RL1: Data Kegiatan Rawat Inap per Departemen</h3>
-            <button type="button" id="btnCetakRL1" class="btn-cetak">🖨️ Cetak / PDF</button>
-          </div>
-          <p id="rl1PeriodeInfo" class="card-subtitle"></p>
-          <div class="table-wrap">
-            <table class="hasil-table" id="tabelRL1"></table>
           </div>
         </section>
 
@@ -732,7 +653,6 @@
 
   <div id="areaCetak"></div>
 
- <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="supabase-sync.js"></script>
+  <script src="dashboard.js"></script>
 </body>
 </html>
